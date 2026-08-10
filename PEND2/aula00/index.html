@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Sensores</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header__brand">
+    <span class="header__logo">📡</span>
+    <h1 class="header__titulo">Dashboard de Sensores</h1>
+  </div>
+  <div class="header__status">
+    <span id="statusIndicator" class="status-dot status-dot--online"></span>
+    <span id="statusTexto">Online</span>
+  </div>
+</header>
+
+<main class="main">
+
+  <section class="controles">
+    <button id="btnAtualizar" class="btn-atualizar">Atualizar dados</button>
+
+    <div class="controles__filtro">
+      <label for="filtroTipo">Filtrar por tipo:</label>
+      <select id="filtroTipo">
+        <option value="Todos">Todos</option>
+        <option value="Temperatura">Temperatura</option>
+        <option value="Umidade">Umidade</option>
+        <option value="Pressão">Pressão</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="grid-sensores" id="gridSensores">
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>&copy; 2026 Dashboard de Sensores. Todos os direitos reservados.</p>
+  <p>Última atualização: <span id="ultimoTimestamp">--:--:--</span></p>
+</footer>
+
+<div id="modalHistorico" class="modal modal--oculto">
+  <div class="modal__conteudo">
+    <div class="modal__cabecalho">
+      <h2 id="modalHistoricoTitulo">Histórico</h2>
+      <button id="btnFecharHistorico" class="modal__fechar">&times;</button>
+    </div>
+    <ul id="listaHistorico" class="modal__lista"></ul>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
