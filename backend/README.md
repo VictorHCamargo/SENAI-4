@@ -25,6 +25,18 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Banco de dados (SQLite)
+
+O backend usa TypeORM com o driver `sqljs` (SQLite em WebAssembly, sem dependências nativas). Ao
+subir a aplicação, o arquivo do banco é criado automaticamente em `data/ppdm2.sqlite` (pasta
+ignorada pelo git) e as tabelas são sincronizadas a partir das entities (`synchronize: true`,
+adequado para desenvolvimento).
+
+A entidade `AlunoEntity` (`src/features/classes/ppdm2/aula00/entities/aluno.entity.ts`) mapeia a
+tabela `alunos`, e o `Aula00Service` usa o `Repository<AlunoEntity>` do TypeORM para
+cadastrar/listar/remover alunos de forma persistente — os dados sobrevivem a reinícios do
+servidor.
+
 ## Project setup
 
 ```bash
