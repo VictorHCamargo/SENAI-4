@@ -1,19 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { IApiResponse } from 'src/shared/interfaces/api-response';
-import { AlunoEntity } from './entities/aluno.entity';
 import { ICreateAlunoDto } from './dto/create-aluno.dto';
+import { FirestoreService } from './firestore.service';
 
 @Injectable()
 export class Aula00Service {
-  constructor(
-    @InjectRepository(AlunoEntity)
-    private readonly alunoRepository: Repository<AlunoEntity>,
-  ) {}
+  constructor(private readonly firestoreService: FirestoreService) {}
 
   async getAlunos(): Promise<IApiResponse> {
-    const alunos = await this.alunoRepository.find({ order: { id: 'ASC' } });
+    const documentos = await this.firestoreService.listarAlunos();
+    const alunos = documentos.map((documento) =>
+      this.firestoreService.documentoParaAluno(documento),
+    );
 
     return {
       messages: '',
@@ -32,14 +30,15 @@ export class Aula00Service {
       };
     }
 
-    const aluno = this.alunoRepository.create({
+    const aluno = {
+      id: Date.now(),
       nome: dto.nome.trim(),
       idade: Number(dto.idade),
       curso: dto.curso.trim(),
-    });
-    await this.alunoRepository.save(aluno);
+    };
+    await this.firestoreService.criarAluno(aluno);
 
-    const alunos = await this.alunoRepository.find({ order: { id: 'ASC' } });
+    const alunos = (await this.getAlunos()).data;
 
     return {
       messages: 'Aluno cadastrado com sucesso',
@@ -49,11 +48,11 @@ export class Aula00Service {
   }
 
   async deleteAluno(id: number): Promise<IApiResponse> {
-    const resultado = await this.alunoRepository.delete(id);
+    const removido = await this.firestoreService.removerAluno(id);
 
-    const alunos = await this.alunoRepository.find({ order: { id: 'ASC' } });
+    const alunos = (await this.getAlunos()).data;
 
-    if (!resultado.affected) {
+    if (!removido) {
       return {
         messages: 'Aluno não encontrado',
         data: alunos,

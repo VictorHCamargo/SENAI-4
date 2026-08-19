@@ -1,25 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { Aula00Service } from './aula00.service';
-import { AlunoEntity } from './entities/aluno.entity';
+import { FirestoreService } from './firestore.service';
 
 describe('Aula00Service', () => {
   let service: Aula00Service;
-  let alunos: AlunoEntity[];
+  let alunos: Array<{ id: number; nome: string; idade: number; curso: string }>;
   let nextId: number;
 
-  const repositoryMock = {
-    find: jest.fn(() => Promise.resolve([...alunos])),
-    create: jest.fn((dto: Partial<AlunoEntity>) => ({ ...dto }) as AlunoEntity),
-    save: jest.fn((aluno: AlunoEntity) => {
-      const salvo = { ...aluno, id: nextId++ };
-      alunos.push(salvo);
-      return Promise.resolve(salvo);
+  const firestoreMock = {
+    listarAlunos: jest.fn(() => Promise.resolve(alunos)),
+    documentoParaAluno: jest.fn((aluno) => aluno),
+    criarAluno: jest.fn((aluno) => {
+      alunos.push({ ...aluno, id: nextId++ });
+      return Promise.resolve();
     }),
-    delete: jest.fn((id: number) => {
+    removerAluno: jest.fn((id: number) => {
       const tamanhoAnterior = alunos.length;
       alunos = alunos.filter((aluno) => aluno.id !== id);
-      return Promise.resolve({ affected: tamanhoAnterior - alunos.length });
+      return Promise.resolve(tamanhoAnterior !== alunos.length);
     }),
   };
 
@@ -30,10 +28,7 @@ describe('Aula00Service', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         Aula00Service,
-        {
-          provide: getRepositoryToken(AlunoEntity),
-          useValue: repositoryMock,
-        },
+        { provide: FirestoreService, useValue: firestoreMock },
       ],
     }).compile();
 
@@ -83,7 +78,7 @@ describe('Aula00Service', () => {
 
   it('deve remover um aluno existente', async () => {
     await service.createAluno({ nome: 'João', idade: 22, curso: 'PPDM' });
-    const alunosCadastrados = (await service.getAlunos()).data as AlunoEntity[];
+    const alunosCadastrados = (await service.getAlunos()).data as typeof alunos;
     const alunoId = alunosCadastrados[0].id;
 
     const response = await service.deleteAluno(alunoId);

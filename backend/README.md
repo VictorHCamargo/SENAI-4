@@ -25,17 +25,19 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Banco de dados (SQLite)
+## Banco de dados (Firestore)
 
-O backend usa TypeORM com o driver `sqljs` (SQLite em WebAssembly, sem dependências nativas). Ao
-subir a aplicação, o arquivo do banco é criado automaticamente em `data/ppdm2.sqlite` (pasta
-ignorada pelo git) e as tabelas são sincronizadas a partir das entities (`synchronize: true`,
-adequado para desenvolvimento).
+A feature de alunos usa a API REST pública do Firestore, na coleção `alunos`. O backend não usa
+credenciais administrativas: defina apenas o ID do projeto antes de iniciar:
 
-A entidade `AlunoEntity` (`src/features/classes/ppdm2/aula00/entities/aluno.entity.ts`) mapeia a
-tabela `alunos`, e o `Aula00Service` usa o `Repository<AlunoEntity>` do TypeORM para
-cadastrar/listar/remover alunos de forma persistente — os dados sobrevivem a reinícios do
-servidor.
+```powershell
+$env:FIREBASE_PROJECT_ID = "senai-91a2d"
+npm run start:dev
+```
+
+No Firebase Console, as regras do Firestore precisam permitir as operações usadas pela aplicação
+(leitura, criação e remoção). O documento mantém os campos `id`, `nome`, `idade` e `curso`. O `id`
+é gerado pelo backend e usado pelo endpoint `DELETE /aulas/ppdm2/aula00/alunos/:id`.
 
 ## Project setup
 
