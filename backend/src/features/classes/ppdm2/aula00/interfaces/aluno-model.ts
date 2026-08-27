@@ -3,4 +3,5 @@ export interface IAlunoModel {
   nome: string;
   idade: number;
   curso: string;
+  email: string;
 }

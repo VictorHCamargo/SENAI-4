@@ -6,10 +6,11 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 import { Aula00Service } from './aula00.service';
 import type { IApiResponse } from 'src/shared/interfaces/api-response';
-import type { ICreateAlunoDto } from './dto/create-aluno.dto';
+import type { ICreateAlunoDto, IUpdateAlunoDto } from './dto/create-aluno.dto';
 
 @Controller('aula00')
 export class Aula00Controller {
@@ -23,6 +24,14 @@ export class Aula00Controller {
   @Post('alunos')
   createAluno(@Body() dto: ICreateAlunoDto): Promise<IApiResponse> {
     return this.aulaService.createAluno(dto);
+  }
+
+  @Put('alunos/:id')
+  updateAluno(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: IUpdateAlunoDto,
+  ): Promise<IApiResponse> {
+    return this.aulaService.updateAluno(id, dto);
   }
 
   @Delete('alunos/:id')

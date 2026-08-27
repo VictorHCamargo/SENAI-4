@@ -1,23 +1,15 @@
 import { Injectable } from '@nestjs/common';
-
-interface FirestoreValue {
-  stringValue?: string;
-  integerValue?: string;
-}
-
-interface FirestoreDocument {
-  name?: string;
-  fields?: Record<string, FirestoreValue>;
-}
+import { IAlunoModel } from './interfaces/aluno-model';
+import { IFirestoreDocument } from './interfaces/firestore';
 
 @Injectable()
 export class FirestoreService {
-  private readonly projectId = '';
+  private readonly projectId = process.env.FIREBASE_PROJECT_ID;
   private readonly collection = 'alunos';
 
-  async listarAlunos(): Promise<FirestoreDocument[]> {
+  async readStudents(): Promise<IFirestoreDocument[]> {
     const response = await this.request<
-      FirestoreDocument[] | { documents?: FirestoreDocument[] }
+      IFirestoreDocument[] | { documents?: IFirestoreDocument[] }
     >(`/${this.collection}?orderBy=id`, 'GET');
 
     if (Array.isArray(response)) {
@@ -27,23 +19,19 @@ export class FirestoreService {
     return response.documents ?? [];
   }
 
-  async criarAluno(aluno: {
-    id: number;
-    nome: string;
-    idade: number;
-    curso: string;
-  }): Promise<void> {
+  async createStudent(aluno: IAlunoModel): Promise<void> {
     await this.request(`/${this.collection}?documentId=${aluno.id}`, 'POST', {
       fields: {
         id: { integerValue: String(aluno.id) },
         nome: { stringValue: aluno.nome },
         idade: { integerValue: String(aluno.idade) },
         curso: { stringValue: aluno.curso },
+        email: { stringValue: aluno.email },
       },
     });
   }
 
-  async removerAluno(id: number): Promise<boolean> {
+  async removeStudent(id: number): Promise<boolean> {
     const response = await fetch(this.url(`/${this.collection}/${id}`), {
       method: 'DELETE',
     });
@@ -55,10 +43,22 @@ export class FirestoreService {
     return true;
   }
 
-  documentoParaAluno(documento: FirestoreDocument) {
-    const fields = documento.fields ?? {};
+  async updateStudent(aluno: IAlunoModel): Promise<void> {
+    await this.request(`/${this.collection}/${aluno.id}`, 'PATCH', {
+      fields: {
+        id: { integerValue: String(aluno.id) },
+        nome: { stringValue: aluno.nome },
+        idade: { integerValue: String(aluno.idade) },
+        curso: { stringValue: aluno.curso },
+        email: { stringValue: aluno.email },
+      },
+    });
+  }
+
+  documentToStudent(document: IFirestoreDocument): IAlunoModel {
+    const fields = document.fields ?? {};
     const id = Number(
-      fields.id?.integerValue ?? documento.name?.split('/').pop(),
+      fields.id?.integerValue ?? document.name?.split('/').pop(),
     );
 
     return {
@@ -66,12 +66,13 @@ export class FirestoreService {
       nome: fields.nome?.stringValue ?? '',
       idade: Number(fields.idade?.integerValue ?? 0),
       curso: fields.curso?.stringValue ?? '',
+      email: fields.email?.stringValue ?? '',
     };
   }
 
   private async request<T = unknown>(
     path: string,
-    method: 'GET' | 'POST',
+    method: 'GET' | 'POST' | 'PATCH',
     body?: object,
   ): Promise<T> {
     const response = await fetch(this.url(path), {
