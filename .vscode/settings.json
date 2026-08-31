@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "*.dbclient-js": "javascript",
+    "*.embeddedhtml": "html",
+    "stdio.h": "c"
+  },
+  "cmake.ignoreCMakeListsMissing": true
+}
