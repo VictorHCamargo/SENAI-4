@@ -1,0 +1,47 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+
+    function localValido(local) {
+      return local.keys().hasOnly([
+          'nome',
+          'categoria',
+          'cidade',
+          'avaliacao',
+          'distancia',
+          'horario',
+          'descricao',
+          'favorito'
+        ])
+        && local.nome is string
+        && local.nome.size() >= 3
+        && local.nome.size() <= 120
+        && local.categoria is string
+        && local.categoria.size() >= 2
+        && local.categoria.size() <= 60
+        && local.cidade in ['São Paulo', 'Campinas', 'Jundiaí']
+        && local.avaliacao is number
+        && local.avaliacao >= 0
+        && local.avaliacao <= 5
+        && local.distancia is number
+        && local.distancia >= 0
+        && local.horario is string
+        && local.horario.size() <= 80
+        && local.descricao is string
+        && local.descricao.size() >= 10
+        && local.descricao.size() <= 1000
+        && local.favorito is bool;
+    }
+
+    match /locais/{localId} {
+      allow read: if estaAutenticado();
+      allow create, update: if estaAutenticado()
+        && localValido(request.resource.data);
+      allow delete: if estaAutenticado();
+    }
+  }
+}

@@ -1,36 +1,64 @@
-final LocalService service = LocalService();
-StreamBuilder<List<Local>>(
-stream: service.listarLocais(),
-builder: (context, snapshot) {
-if (snapshot.connectionState == ConnectionState.waiting) {
-return const Center(
-child: CircularProgressIndicator(),
-);
-}
-if (snapshot.hasError) {
-return const Center(
-child: Text('Erro ao carregar os locais.'),
-);
-}
-final locais = snapshot.data ?? [];
-if (locais.isEmpty) {
-return const Center(
-child: Text('Nenhum local encontrado.'),
-);
-}
-return ListView.builder(
-itemCount: locais.length,
-itemBuilder: (context, index) {
-final local = locais[index];
-return ListTile(
-title: Text(local.nome),
-subtitle: Text(local.categoria),
-onTap: () {
+// Arquivo temporário e compilável até a execução de `flutterfire configure`.
+// O FlutterFire CLI substituirá este arquivo pelas opções reais do projeto.
 
-// abrir detalhes
-},
-);
-},
-);
-},
-)
+import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform, kIsWeb;
+
+class DefaultFirebaseOptions {
+  static FirebaseOptions get currentPlatform {
+    if (kIsWeb) {
+      return web;
+    }
+
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.android => android,
+      TargetPlatform.iOS => ios,
+      TargetPlatform.macOS => macos,
+      TargetPlatform.windows => windows,
+      TargetPlatform.linux => throw UnsupportedError(
+        'O Firebase deve ser configurado para a plataforma Linux.',
+      ),
+      TargetPlatform.fuchsia => throw UnsupportedError(
+        'O Firebase não oferece configuração para Fuchsia.',
+      ),
+    };
+  }
+
+  static const web = FirebaseOptions(
+    apiKey: String.fromEnvironment('FIREBASE_API_KEY'),
+    appId: String.fromEnvironment('FIREBASE_WEB_APP_ID'),
+    messagingSenderId: String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID'),
+    projectId: String.fromEnvironment('FIREBASE_PROJECT_ID'),
+    authDomain: String.fromEnvironment('FIREBASE_AUTH_DOMAIN'),
+    storageBucket: String.fromEnvironment('FIREBASE_STORAGE_BUCKET'),
+  );
+
+  static const android = FirebaseOptions(
+    apiKey: String.fromEnvironment('FIREBASE_API_KEY'),
+    appId: String.fromEnvironment('FIREBASE_ANDROID_APP_ID'),
+    messagingSenderId: String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID'),
+    projectId: String.fromEnvironment('FIREBASE_PROJECT_ID'),
+    storageBucket: String.fromEnvironment('FIREBASE_STORAGE_BUCKET'),
+  );
+
+  static const ios = FirebaseOptions(
+    apiKey: String.fromEnvironment('FIREBASE_API_KEY'),
+    appId: String.fromEnvironment('FIREBASE_IOS_APP_ID'),
+    messagingSenderId: String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID'),
+    projectId: String.fromEnvironment('FIREBASE_PROJECT_ID'),
+    storageBucket: String.fromEnvironment('FIREBASE_STORAGE_BUCKET'),
+    iosBundleId: 'com.example.formativa',
+  );
+
+  static const macos = ios;
+
+  static const windows = FirebaseOptions(
+    apiKey: String.fromEnvironment('FIREBASE_API_KEY'),
+    appId: String.fromEnvironment('FIREBASE_WINDOWS_APP_ID'),
+    messagingSenderId: String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID'),
+    projectId: String.fromEnvironment('FIREBASE_PROJECT_ID'),
+    authDomain: String.fromEnvironment('FIREBASE_AUTH_DOMAIN'),
+    storageBucket: String.fromEnvironment('FIREBASE_STORAGE_BUCKET'),
+  );
+}
